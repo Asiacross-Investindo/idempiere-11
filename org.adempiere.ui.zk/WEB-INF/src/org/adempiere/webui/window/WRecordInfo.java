@@ -395,10 +395,12 @@ public class WRecordInfo extends Window implements EventListener<Event>
 			return false;
 		
 		//	Data
-		String sql = "SELECT AD_Column_ID, Updated, UpdatedBy, OldValue, NewValue "
-			+ "FROM AD_ChangeLog "
-			+ "WHERE AD_Table_ID=? AND (Record_ID=? OR Record_UU=?) "
-			+ "ORDER BY Updated DESC";
+		String sql = "SELECT cl.AD_Column_ID, cl.Updated, cl.UpdatedBy, cl.OldValue, cl.NewValue "
+			+ "FROM AD_ChangeLog cl "
+			+ "INNER JOIN AD_Column c ON (c.AD_Column_ID = cl.AD_Column_ID) "
+			+ "WHERE cl.AD_Table_ID=? AND (cl.Record_ID=? OR cl.Record_UU=?) "
+			+ "AND c.IsShowLogging = 'Y' "
+			+ "ORDER BY cl.Updated DESC";
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try

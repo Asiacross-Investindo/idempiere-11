@@ -129,11 +129,11 @@
     </library-property>
     <library-property>
         <name>org.zkoss.theme.preferred</name>
-        <value>breeze</value>
+        <value>liteblue</value>
     </library-property>
 	<preference>
     	<name>org.zkoss.zk.ui.WebApp.name</name>
-    	<value>iDempiere</value>
+    	<value>HRIS ACI</value>
 	</preference>
     <library-property>
         <name>org.zkoss.zk.ui.uuidRecycle.disabled</name>

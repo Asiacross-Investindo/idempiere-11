@@ -157,7 +157,7 @@ public class MWFResponsible extends X_AD_WF_Responsible implements ImmutablePOSu
 	 */
 	public boolean isInvoker()
 	{
-		return getAD_User_ID() == 0 && getAD_Role_ID() == 0 && !isManual();
+		return getAD_User_ID() == 0 && getAD_Role_ID() == 0 && !isManual() && !getResponsibleType().equals("U");
 	}	//	isInvoker
 	
 	/**

@@ -88,6 +88,8 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 
 	private static final String CURRENT_WORKFLOW_PROCESS_INFO_ATTR = "Workflow.ProcessInfo";
 	
+	private static final String RESPONSIBLETYPE_Supervisor = "U";
+	
 	/**
 	 * 	Get Activities for table/record
 	 *	@param ctx context
@@ -663,6 +665,20 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 
 		//	User - Directly responsible
 		int AD_User_ID = resp.getAD_User_ID();
+		// Supervisor
+		if (AD_User_ID == 0 && resp.getResponsibleType().equals(RESPONSIBLETYPE_Supervisor)) {
+			MUser user = MUser.get(process.getAD_User_ID());
+			if (user.getSupervisor_ID() > 0) {
+				AD_User_ID = user.getSupervisor_ID();
+			}
+		}
+		// Organization
+		if (AD_User_ID == 0 && resp.isOrganization()) {
+			MOrgInfo org = MOrgInfo.get(getCtx(), m_po.getAD_Org_ID(), get_TrxName());
+			if (org.getSupervisor_ID() > 0) {
+				AD_User_ID = org.getSupervisor_ID();
+			}
+		}
 		//	Invoker - get Sales Rep or last updater of document
 		if (AD_User_ID == 0 && resp.isInvoker())
 			AD_User_ID = process.getAD_User_ID();
@@ -1342,9 +1358,11 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
                             }
                         }
 					}
-					else if(resp.isOrganization())
+					else if(resp.isOrganization() || resp.getResponsibleType().equals(RESPONSIBLETYPE_Supervisor))
 					{
-						throw new AdempiereException("Support not implemented for "+resp);
+						if (getAD_User_ID() == Env.getAD_User_ID(getCtx())) {
+							autoApproval = true;
+						}
 					}
 					else
 					{
@@ -1858,6 +1876,15 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 					sendEMail(client, org.getSupervisor_ID(), null, subject, message, pdf, text.isHtml());
 				}
 			}
+			else if (resp.getResponsibleType().equals(RESPONSIBLETYPE_Supervisor)) 
+			{
+				MUser user = MUser.get(doc.getDoc_User_ID());
+				if (user.getSupervisor_ID() == 0) {
+					if (log.isLoggable(Level.FINE)) log.fine("No Supervisor for user=" + user.getName());
+				} else {
+					sendEMail(client, user.getSupervisor_ID(), null, subject, message, pdf, text.isHtml());
+				}
+			}
 		}
 	}	//	sendEMail
 
@@ -2031,6 +2058,11 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 		PO po = getPO();
 		if (po == null)
 			return null;
+		
+		if (po instanceof DocAction) {
+			return ((DocAction)po).getSummary();
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		String[] keyColumns = po.get_KeyColumns();
 		if ((keyColumns != null) && (keyColumns.length > 0))
