@@ -1360,9 +1360,9 @@ public class MWFActivity extends X_AD_WF_Activity implements Runnable
 					}
 					else if(resp.isOrganization() || resp.getResponsibleType().equals(RESPONSIBLETYPE_Supervisor))
 					{
-						if (getAD_User_ID() == Env.getAD_User_ID(getCtx())) {
-							autoApproval = true;
-						}
+//						if (getAD_User_ID() == Env.getAD_User_ID(getCtx())) {
+//							autoApproval = true;
+//						}
 					}
 					else
 					{
